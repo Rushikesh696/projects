@@ -1,0 +1,28 @@
+# Streaming
+pyspark==3.4.3
+kafka-python==2.0.2
+
+# ML
+scikit-learn==1.4.2
+xgboost==2.0.3
+lightgbm==4.3.0
+mlflow==2.12.2
+joblib==1.4.2
+
+# API
+fastapi==0.111.0
+uvicorn==0.29.0
+
+# Dashboard
+streamlit==1.35.0
+plotly==5.22.0
+
+# Data
+pandas==2.2.2
+numpy==1.26.4
+pyarrow==16.0.0
+
+# Utilities
+python-dotenv==1.0.1
+requests==2.31.0
+pydantic==2.7.1

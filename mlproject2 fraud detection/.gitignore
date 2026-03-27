@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pkl
+*.csv
+mlflow.db
+mlruns/
+*.pyc
+.env
+checkpoint/
+.vscode/
+.claude/

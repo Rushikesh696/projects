@@ -1,0 +1,58 @@
+database:
+  host: ${POSTGRES_HOST}
+  port: ${POSTGRES_PORT}
+  name: ${POSTGRES_DB}
+  user: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}
+  schemas:
+    source: source
+    bronze: bronze
+    silver: silver
+    gold: gold
+
+
+kafka:
+  bootstrap_servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  topic: ${KAFKA_TOPIC}
+  consumer_group: serum-qa-consumer-group
+
+
+debezium:
+  connector_name: ${DEBEZIUM_CONNECTOR_NAME}
+  connector_class: io.debezium.connector.postgresql.PostgresConnector
+  tasks_max: 1
+  table_include_list: source.qa_events
+  plugin_name: pgoutput
+
+
+mlflow:
+    tracking_uri: ${MLFLOW_TRACKING_URI}
+    experiment_name: ${MLFLOW_EXPERIMENT_NAME}
+    registered_model_name: serum_anomaly_detector
+    staging_stage: Staging
+    production_stage: Production
+
+
+api:
+    host: 0.0.0.0
+    port: 8000
+    token_expire_minutes: ${API_TOKEN_EXPIRE_MINUTES}
+
+pipeline:
+    batch_size: 10000
+    bronze_table: bronze.qa_events
+    silver_table: silver.qa_events_clean
+    gold_table: gold.qa_features
+
+
+anomaly_detection:
+    contamination: 0.01        # ~1% anomaly rate matches our dataset
+    rolling_window_days: 7
+    alert_threshold: 0.05
+    deviation_spike_multiplier: 2.5   # alert if 2.5x 30-day average
+
+
+monitoring:
+    prometheus_port: ${PROMETHEUS_PORT}
+    grafana_port: ${GRAFANA_PORT}
+

@@ -1,0 +1,43 @@
+stages:
+
+  bronze_to_silver:
+    cmd: python pipeline/bronze_to_silver.py
+    deps:
+      - pipeline/bronze_to_silver.py
+      - configs/config.yaml
+    params:
+      - params.yaml:
+          - pipeline.batch_size
+
+  silver_to_gold:
+    cmd: python pipeline/silver_to_gold.py
+    deps:
+      - pipeline/silver_to_gold.py
+      - configs/config.yaml
+    params:
+      - params.yaml:
+          - anomaly_detection.rolling_window_days
+    always_changed: true
+
+  evaluate:
+    cmd: python ml/evaluate_model.py
+    deps:
+      - ml/evaluate_model.py
+      - models/isolation_forest.pkl
+      - models/autoencoder.h5
+      - models/scaler.pkl
+    params:
+      - params.yaml:
+          - anomaly_detection.alert_threshold
+          - anomaly_detection.contamination
+    metrics:
+      - logs/metrics.json:
+          cache: false
+
+  register:
+    cmd: python ml/register_model.py
+    deps:
+      - ml/register_model.py
+      - models/isolation_forest.pkl
+      - models/autoencoder.h5
+      - models/scaler.pkl

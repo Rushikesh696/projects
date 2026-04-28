@@ -1,0 +1,23 @@
+{
+    "name": "serum-qa-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "rushikesh",
+        "database.password": "nexgensis",
+        "database.dbname": "serum_mlmodels",
+        "database.server.name": "serum",
+        "topic.prefix": "serum",
+        "table.include.list": "source.qa_events",
+        "plugin.name": "pgoutput",
+        "slot.name": "serum_debezium_slot",
+        "publication.name": "serum_publication",
+        "publication.autocreate.mode": "filtered",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter.schemas.enable": "false"
+    }
+}

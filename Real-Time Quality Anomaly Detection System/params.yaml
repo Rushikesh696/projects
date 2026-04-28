@@ -1,0 +1,8 @@
+anomaly_detection:
+  contamination: 0.01
+  rolling_window_days: 7
+  alert_threshold: 0.7
+  deviation_spike_multiplier: 2.5
+
+pipeline:
+  batch_size: 10000

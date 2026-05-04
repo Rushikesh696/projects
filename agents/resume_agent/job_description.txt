@@ -1,0 +1,25 @@
+ PYTHON + DJANGO DEVELOPER (1+ YEARS EXPERIENCE)
+
+🏢 Nexgensis Technologies is adding Python / Django Developers to the team!
+
+📌 Quick Facts
+ 🧑‍💻 1+ years of experience required
+ 🏢 Work From Office (mandatory)
+ 📍 Pune
+
+💻 What you’ll actually do
+
+-Build web apps using Django & DRF
+-Work on PostgreSQL (real databases, not just theory)
+-Create & integrate REST APIs
+-Write clean, readable Python code
+-Learn through code reviews & team collaboration
+
+🧠 You’re a fit if
+
+-Strong proficiency in Python and Django Framework
+-Hands-on experience with PostgreSQL and Django ORM
+-Understanding of RESTful APIs, MVC/MVT architecture, and Git
+-Problem-solving attitude and eagerness to learn
+-You’re curious, consistent, and ready to grow 🚀
+

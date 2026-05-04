@@ -1,0 +1,17 @@
+# Secrets & credentials — never commit these
+.env
+credentials.json
+token.json
+
+# Candidate data (PII)
+output/
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temp PDFs
+*.pdf

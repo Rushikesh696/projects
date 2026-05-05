@@ -1,0 +1,205 @@
+name: CD — Real-Time QA Anomaly Detection
+
+on:
+  push:
+    branches: [main]
+
+defaults:
+  run:
+    working-directory: "Real-Time Quality Anomaly Detection System"
+
+jobs:
+  # ── Job 1: Integration tests (PostgreSQL service container) ──────────────────
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: rushikesh
+          POSTGRES_PASSWORD: nexgensis
+          POSTGRES_DB: serum_mlmodels
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest psycopg2-binary python-dotenv pyyaml \
+                      scikit-learn joblib numpy pandas \
+                      fastapi uvicorn python-jose[cryptography]
+
+      - name: Initialise DB schemas
+        run: |
+          PGPASSWORD=nexgensis psql \
+            -h localhost -p 5433 -U rushikesh -d serum_mlmodels \
+            -f init_db.sql
+        working-directory: "Real-Time Quality Anomaly Detection System"
+
+      - name: Run DB integration tests
+        run: pytest tests/integration/test_db_connection.py -v --tb=short
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5433"
+          POSTGRES_DB: serum_mlmodels
+          POSTGRES_USER: rushikesh
+          POSTGRES_PASSWORD: nexgensis
+
+  # ── Job 2: API smoke test ─────────────────────────────────────────────────────
+  api-smoke-test:
+    name: API Smoke Test
+    runs-on: ubuntu-latest
+    needs: integration-tests
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: rushikesh
+          POSTGRES_PASSWORD: nexgensis
+          POSTGRES_DB: serum_mlmodels
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install fastapi uvicorn python-jose[cryptography] \
+                      psycopg2-binary python-dotenv pyyaml \
+                      scikit-learn joblib numpy
+
+      - name: Initialise DB schemas
+        run: |
+          PGPASSWORD=nexgensis psql \
+            -h localhost -p 5433 -U rushikesh -d serum_mlmodels \
+            -f init_db.sql
+        working-directory: "Real-Time Quality Anomaly Detection System"
+
+      - name: Generate dummy models for smoke test
+        run: |
+          python - <<'EOF'
+          import joblib, numpy as np
+          from sklearn.ensemble import IsolationForest
+          from sklearn.preprocessing import StandardScaler
+          from pathlib import Path
+
+          Path("models").mkdir(exist_ok=True)
+          X = np.random.randn(200, 10)
+          scaler = StandardScaler().fit(X)
+          iso = IsolationForest(n_estimators=10, random_state=42).fit(scaler.transform(X))
+          joblib.dump(scaler, "models/scaler.pkl")
+          joblib.dump(iso, "models/isolation_forest.pkl")
+          print("Dummy models created for smoke test.")
+          EOF
+
+      - name: Start API
+        run: uvicorn api.main:app --host 0.0.0.0 --port 8000 &
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5433"
+          POSTGRES_DB: serum_mlmodels
+          POSTGRES_USER: rushikesh
+          POSTGRES_PASSWORD: nexgensis
+          API_SECRET_KEY: ${{ secrets.API_SECRET_KEY }}
+          API_ALGORITHM: HS256
+          API_TOKEN_EXPIRE_MINUTES: "30"
+          MLFLOW_TRACKING_URI: http://localhost:5000
+
+      - name: Wait for API to be ready
+        run: |
+          for i in $(seq 1 15); do
+            curl -sf http://localhost:8000/health && break
+            echo "Waiting... ($i)"
+            sleep 2
+          done
+
+      - name: Health check
+        run: curl --fail http://localhost:8000/health
+
+      - name: Ready check
+        run: curl --fail http://localhost:8000/ready
+
+      - name: Token auth check
+        run: |
+          RESPONSE=$(curl --fail -s -X POST http://localhost:8000/token \
+            -d "username=serum_qa&password=serum_pass123" \
+            -H "Content-Type: application/x-www-form-urlencoded")
+          echo "$RESPONSE" | python -c "import sys,json; t=json.load(sys.stdin)['access_token']; print('Token OK:', t[:20]+'...')"
+
+  # ── Job 3: Model artifact check ───────────────────────────────────────────────
+  model-artifact-check:
+    name: Model Artifact Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install scikit-learn joblib numpy
+
+      - name: Create and verify model artifacts
+        run: |
+          python - <<'EOF'
+          import joblib, numpy as np
+          from sklearn.ensemble import IsolationForest
+          from sklearn.preprocessing import StandardScaler
+          from pathlib import Path
+
+          FEATURE_COLS = [
+              "deviation_count_7d", "deviation_count_30d",
+              "complaint_rate_7d", "capa_overdue_ratio_30d", "oos_count_7d",
+              "critical_ratio_7d", "major_ratio_7d",
+              "unusual_event_count_7d", "material_complaint_count_7d", "quality_risk_open_7d",
+          ]
+
+          Path("models").mkdir(exist_ok=True)
+          X = np.random.randn(200, len(FEATURE_COLS))
+          scaler = StandardScaler().fit(X)
+          iso = IsolationForest(n_estimators=10, random_state=42).fit(scaler.transform(X))
+          joblib.dump(scaler, "models/scaler.pkl")
+          joblib.dump(iso, "models/isolation_forest.pkl")
+
+          # Verify round-trip
+          scaler2 = joblib.load("models/scaler.pkl")
+          iso2 = joblib.load("models/isolation_forest.pkl")
+          X_test = np.zeros((1, len(FEATURE_COLS)))
+          X_scaled = scaler2.transform(X_test)
+          pred = iso2.predict(X_scaled)
+          score = -iso2.decision_function(X_scaled)[0]
+
+          assert X_scaled.shape == (1, 10), f"Wrong shape: {X_scaled.shape}"
+          assert pred[0] in [-1, 1], f"Invalid prediction: {pred[0]}"
+          print(f"scaler:     OK — {len(FEATURE_COLS)} features")
+          print(f"iso_forest: OK — prediction={pred[0]}, score={score:.4f}")
+          print("All model artifact checks passed.")
+          EOF

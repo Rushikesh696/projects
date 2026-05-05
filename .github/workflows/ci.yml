@@ -1,0 +1,111 @@
+name: CI — Real-Time QA Anomaly Detection
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+defaults:
+  run:
+    working-directory: "Real-Time Quality Anomaly Detection System"
+
+jobs:
+  # ── Job 1: Lint & format ─────────────────────────────────────────────────────
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install linting tools
+        run: pip install black isort flake8
+
+      - name: black (format check)
+        run: black --check --line-length 100 --exclude "venv|notebooks|\.ipynb" .
+
+      - name: isort (import order check)
+        run: isort --check-only --skip venv --skip notebooks .
+
+      - name: flake8 (lint)
+        run: |
+          flake8 . \
+            --max-line-length=100 \
+            --exclude=venv,notebooks,__pycache__,.git \
+            --ignore=E203,W503
+
+  # ── Job 2: Unit tests ────────────────────────────────────────────────────────
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('Real-Time Quality Anomaly Detection System/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install psycopg2-binary python-dotenv pyyaml \
+                      scikit-learn numpy pandas \
+                      fastapi python-jose[cryptography] \
+                      xgboost imbalanced-learn
+
+      - name: Run unit tests
+        run: |
+          pytest tests/unit/ -v --tb=short \
+            --cov=pipeline --cov=ml --cov=api \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml
+        env:
+          API_SECRET_KEY: ci-test-secret-key-not-for-production
+          API_ALGORITHM: HS256
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: "Real-Time Quality Anomaly Detection System/coverage.xml"
+
+  # ── Job 3: Config validation ──────────────────────────────────────────────────
+  validate-config:
+    name: Validate Config
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install pyyaml
+        run: pip install pyyaml
+
+      - name: Validate config.yaml is valid YAML
+        run: python -c "import yaml; yaml.safe_load(open('configs/config.yaml')); print('config.yaml OK')"
+
+      - name: Validate params.yaml is valid YAML
+        run: python -c "import yaml; yaml.safe_load(open('params.yaml')); print('params.yaml OK')"
+
+      - name: Validate docker-compose.yml syntax
+        run: docker compose -f docker-compose.yml config --quiet
+        working-directory: "Real-Time Quality Anomaly Detection System"

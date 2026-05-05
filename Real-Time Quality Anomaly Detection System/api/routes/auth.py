@@ -46,6 +46,8 @@ def verify_token(token: str = Depends(oauth2_scheme)) -> str:
 @router.post("/token", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
     if form_data.username != DEMO_USER["username"] or form_data.password != DEMO_USER["password"]:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect credentials"
+        )
     token = create_access_token({"sub": form_data.username})
     return {"access_token": token, "token_type": "bearer"}

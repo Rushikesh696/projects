@@ -1,6 +1,7 @@
 """
 Shared pytest fixtures for unit and integration tests.
 """
+
 import os
 import pytest
 import numpy as np
@@ -8,14 +9,19 @@ import pandas as pd
 from unittest.mock import MagicMock
 from sklearn.preprocessing import StandardScaler
 
-
 # ── Fixtures: feature data ────────────────────────────────────────────────────
 
 FEATURE_COLS = [
-    "deviation_count_7d", "deviation_count_30d",
-    "complaint_rate_7d", "capa_overdue_ratio_30d", "oos_count_7d",
-    "critical_ratio_7d", "major_ratio_7d",
-    "unusual_event_count_7d", "material_complaint_count_7d", "quality_risk_open_7d",
+    "deviation_count_7d",
+    "deviation_count_30d",
+    "complaint_rate_7d",
+    "capa_overdue_ratio_30d",
+    "oos_count_7d",
+    "critical_ratio_7d",
+    "major_ratio_7d",
+    "unusual_event_count_7d",
+    "material_complaint_count_7d",
+    "quality_risk_open_7d",
 ]
 
 
@@ -24,9 +30,7 @@ def sample_gold_df():
     """Small synthetic gold DataFrame matching gold.qa_features schema."""
     np.random.seed(42)
     n = 100
-    df = pd.DataFrame({
-        col: np.random.uniform(0, 5, n) for col in FEATURE_COLS
-    })
+    df = pd.DataFrame({col: np.random.uniform(0, 5, n) for col in FEATURE_COLS})
     df["is_anomaly"] = np.random.choice([0, 1], n, p=[0.99, 0.01])
     return df
 
@@ -57,6 +61,7 @@ def mock_autoencoder():
 
 
 # ── Fixtures: Debezium messages ───────────────────────────────────────────────
+
 
 @pytest.fixture
 def valid_debezium_message():

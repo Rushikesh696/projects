@@ -5,6 +5,7 @@ Validates schema and critical constraints on bronze.qa_events.
 Install: pip install great-expectations
 Run:     python pipeline/validate_bronze.py
 """
+
 import json
 import os
 import sys
@@ -30,23 +31,45 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler(LOG_PATH),
-    ]
+    ],
 )
 log = logging.getLogger(__name__)
 
 VALID_EVENT_TYPES = [
-    "deviation", "complaint", "ade", "capa", "oos",
-    "change_control", "media_fill", "vendor_audit",
-    "critical_alarm", "unusual_event", "online_material_complaint", "quality_risk",
+    "deviation",
+    "complaint",
+    "ade",
+    "capa",
+    "oos",
+    "change_control",
+    "media_fill",
+    "vendor_audit",
+    "critical_alarm",
+    "unusual_event",
+    "online_material_complaint",
+    "quality_risk",
 ]
 
 VALID_SEVERITIES = ["Critical", "Major", "Minor"]
 
 REQUIRED_COLUMNS = [
-    "event_id", "timestamp", "event_type", "product", "system",
-    "root_cause", "severity", "batch_id", "status", "resolution_days",
-    "is_anomaly", "is_covid_period", "hour", "day_of_week",
-    "month", "year", "is_weekend",
+    "event_id",
+    "timestamp",
+    "event_type",
+    "product",
+    "system",
+    "root_cause",
+    "severity",
+    "batch_id",
+    "status",
+    "resolution_days",
+    "is_anomaly",
+    "is_covid_period",
+    "hour",
+    "day_of_week",
+    "month",
+    "year",
+    "is_weekend",
 ]
 
 
@@ -80,32 +103,67 @@ def run_validations(df: pd.DataFrame) -> dict:
         results.append(("schema", f"column_exists:{col}", r["success"]))
 
     # ── event_id: not null, unique ───────────────────────────────────────────
-    results.append(("critical", "event_id_not_null",
-                    gdf.expect_column_values_to_not_be_null("event_id")["success"]))
-    results.append(("critical", "event_id_unique",
-                    gdf.expect_column_values_to_be_unique("event_id")["success"]))
+    results.append(
+        (
+            "critical",
+            "event_id_not_null",
+            gdf.expect_column_values_to_not_be_null("event_id")["success"],
+        )
+    )
+    results.append(
+        (
+            "critical",
+            "event_id_unique",
+            gdf.expect_column_values_to_be_unique("event_id")["success"],
+        )
+    )
 
     # ── timestamp: not null ──────────────────────────────────────────────────
-    results.append(("critical", "timestamp_not_null",
-                    gdf.expect_column_values_to_not_be_null("timestamp")["success"]))
+    results.append(
+        (
+            "critical",
+            "timestamp_not_null",
+            gdf.expect_column_values_to_not_be_null("timestamp")["success"],
+        )
+    )
 
     # ── event_type: in valid set ─────────────────────────────────────────────
-    results.append(("quality", "event_type_valid_set",
-                    gdf.expect_column_values_to_be_in_set("event_type", VALID_EVENT_TYPES)["success"]))
+    results.append(
+        (
+            "quality",
+            "event_type_valid_set",
+            gdf.expect_column_values_to_be_in_set("event_type", VALID_EVENT_TYPES)["success"],
+        )
+    )
 
     # ── severity: in valid set (allows nulls — Silver handles imputation) ───
-    results.append(("quality", "severity_valid_set",
-                    gdf.expect_column_values_to_be_in_set(
-                        "severity", VALID_SEVERITIES, mostly=0.90
-                    )["success"]))
+    results.append(
+        (
+            "quality",
+            "severity_valid_set",
+            gdf.expect_column_values_to_be_in_set("severity", VALID_SEVERITIES, mostly=0.90)[
+                "success"
+            ],
+        )
+    )
 
     # ── is_anomaly: only 0 or 1 ─────────────────────────────────────────────
-    results.append(("critical", "is_anomaly_binary",
-                    gdf.expect_column_values_to_be_in_set("is_anomaly", [0, 1])["success"]))
+    results.append(
+        (
+            "critical",
+            "is_anomaly_binary",
+            gdf.expect_column_values_to_be_in_set("is_anomaly", [0, 1])["success"],
+        )
+    )
 
     # ── Row count > 0 ────────────────────────────────────────────────────────
-    results.append(("critical", "row_count_positive",
-                    gdf.expect_table_row_count_to_be_between(min_value=1)["success"]))
+    results.append(
+        (
+            "critical",
+            "row_count_positive",
+            gdf.expect_table_row_count_to_be_between(min_value=1)["success"],
+        )
+    )
 
     # ── Null rates: product/system/root_cause allowed up to 10% ─────────────
     for col in ["product", "system", "root_cause"]:

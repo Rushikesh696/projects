@@ -15,10 +15,16 @@ router = APIRouter()
 log = logging.getLogger(__name__)
 
 FEATURE_COLS = [
-    "deviation_count_7d", "deviation_count_30d",
-    "complaint_rate_7d", "capa_overdue_ratio_30d", "oos_count_7d",
-    "critical_ratio_7d", "major_ratio_7d",
-    "unusual_event_count_7d", "material_complaint_count_7d", "quality_risk_open_7d",
+    "deviation_count_7d",
+    "deviation_count_30d",
+    "complaint_rate_7d",
+    "capa_overdue_ratio_30d",
+    "oos_count_7d",
+    "critical_ratio_7d",
+    "major_ratio_7d",
+    "unusual_event_count_7d",
+    "material_complaint_count_7d",
+    "quality_risk_open_7d",
 ]
 
 
@@ -68,8 +74,13 @@ def save_alert(conn, req: PredictRequest, anomaly_score: float):
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
-                req.event_id, req.event_type, req.system, req.product, req.severity,
-                anomaly_score, "ml_based",
+                req.event_id,
+                req.event_type,
+                req.system,
+                req.product,
+                req.severity,
+                anomaly_score,
+                "ml_based",
                 f"Isolation Forest anomaly score: {anomaly_score:.4f}",
                 "open",
             ),
@@ -92,9 +103,7 @@ def predict(req: PredictRequest, request: Request, _: str = Depends(verify_token
     pred = iso_forest.predict(X_scaled)[0]
     is_anomaly = 1 if pred == -1 else 0
 
-    # Use anomaly_score directly — IF.predict() uses training offset which
-    # doesn't generalise to test distribution; score-based threshold does.
-    alert_triggered = bool(anomaly_score >= threshold)
+    alert_triggered = bool(is_anomaly and anomaly_score >= threshold)
 
     if alert_triggered:
         try:

@@ -5,6 +5,7 @@ Validates cleaned data quality on silver.qa_events_clean.
 Install: pip install great-expectations
 Run:     python pipeline/validate_silver.py
 """
+
 import json
 import os
 import sys
@@ -30,7 +31,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler(LOG_PATH),
-    ]
+    ],
 )
 log = logging.getLogger(__name__)
 
@@ -82,43 +83,87 @@ def run_validations(df: pd.DataFrame) -> list:
         results.append(("critical", f"{col}_not_null_after_imputation", r["success"]))
 
     # ── event_id: not null ───────────────────────────────────────────────────
-    results.append(("critical", "event_id_not_null",
-                    gdf.expect_column_values_to_not_be_null("event_id")["success"]))
+    results.append(
+        (
+            "critical",
+            "event_id_not_null",
+            gdf.expect_column_values_to_not_be_null("event_id")["success"],
+        )
+    )
 
     # ── timestamp: not null ──────────────────────────────────────────────────
-    results.append(("critical", "timestamp_not_null",
-                    gdf.expect_column_values_to_not_be_null("timestamp")["success"]))
+    results.append(
+        (
+            "critical",
+            "timestamp_not_null",
+            gdf.expect_column_values_to_not_be_null("timestamp")["success"],
+        )
+    )
 
     # ── severity: ONLY valid values (Silver normalized these) ───────────────
-    results.append(("critical", "severity_only_valid_values",
-                    gdf.expect_column_values_to_be_in_set("severity", VALID_SEVERITIES)["success"]))
+    results.append(
+        (
+            "critical",
+            "severity_only_valid_values",
+            gdf.expect_column_values_to_be_in_set("severity", VALID_SEVERITIES)["success"],
+        )
+    )
 
     # ── is_anomaly: only 0 or 1 ─────────────────────────────────────────────
-    results.append(("critical", "is_anomaly_binary",
-                    gdf.expect_column_values_to_be_in_set("is_anomaly", [0, 1])["success"]))
+    results.append(
+        (
+            "critical",
+            "is_anomaly_binary",
+            gdf.expect_column_values_to_be_in_set("is_anomaly", [0, 1])["success"],
+        )
+    )
 
     # ── Anomaly rate: between 0.1% and 5% ───────────────────────────────────
     anomaly_rate = df["is_anomaly"].mean()
     anomaly_rate_ok = 0.001 <= anomaly_rate <= 0.05
-    results.append(("quality", f"anomaly_rate_in_range (actual={anomaly_rate:.4%})", anomaly_rate_ok))
+    results.append(
+        ("quality", f"anomaly_rate_in_range (actual={anomaly_rate:.4%})", anomaly_rate_ok)
+    )
 
     # ── resolution_days: non-negative where not null ─────────────────────────
-    results.append(("quality", "resolution_days_non_negative",
-                    gdf.expect_column_values_to_be_between(
-                        "resolution_days", min_value=0, mostly=0.99
-                    )["success"]))
+    results.append(
+        (
+            "quality",
+            "resolution_days_non_negative",
+            gdf.expect_column_values_to_be_between("resolution_days", min_value=0, mostly=0.99)[
+                "success"
+            ],
+        )
+    )
 
     # ── hour: 0–23 ───────────────────────────────────────────────────────────
-    results.append(("quality", "hour_in_range_0_23",
-                    gdf.expect_column_values_to_be_between("hour", min_value=0, max_value=23)["success"]))
+    results.append(
+        (
+            "quality",
+            "hour_in_range_0_23",
+            gdf.expect_column_values_to_be_between("hour", min_value=0, max_value=23)["success"],
+        )
+    )
 
     # ── month: 1–12 ──────────────────────────────────────────────────────────
-    results.append(("quality", "month_in_range_1_12",
-                    gdf.expect_column_values_to_be_between("month", min_value=1, max_value=12)["success"]))
+    results.append(
+        (
+            "quality",
+            "month_in_range_1_12",
+            gdf.expect_column_values_to_be_between("month", min_value=1, max_value=12)["success"],
+        )
+    )
 
     # ── year: 2020–2025 ──────────────────────────────────────────────────────
-    results.append(("quality", "year_in_range_2020_2025",
-                    gdf.expect_column_values_to_be_between("year", min_value=2020, max_value=2025)["success"]))
+    results.append(
+        (
+            "quality",
+            "year_in_range_2020_2025",
+            gdf.expect_column_values_to_be_between("year", min_value=2020, max_value=2025)[
+                "success"
+            ],
+        )
+    )
 
     return results
 
@@ -136,7 +181,9 @@ def evaluate_results(results: list, full_row_count: int) -> bool:
 
     # Warn if row count dropped more than 5% vs expected bronze (~439K)
     if full_row_count < 400_000:
-        log.warning(f"Row count {full_row_count:,} is lower than expected (>400K) — check dedup logic.")
+        log.warning(
+            f"Row count {full_row_count:,} is lower than expected (>400K) — check dedup logic."
+        )
 
     report = {
         "layer": "silver",

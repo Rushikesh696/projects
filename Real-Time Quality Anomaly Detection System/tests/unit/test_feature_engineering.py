@@ -2,15 +2,22 @@
 Unit tests for ml/evaluate_model.py — prepare_features()
 No database or model artifacts required.
 """
+
 import numpy as np
 import pandas as pd
 import pytest
 
 FEATURE_COLS = [
-    "deviation_count_7d", "deviation_count_30d",
-    "complaint_rate_7d", "capa_overdue_ratio_30d", "oos_count_7d",
-    "critical_ratio_7d", "major_ratio_7d",
-    "unusual_event_count_7d", "material_complaint_count_7d", "quality_risk_open_7d",
+    "deviation_count_7d",
+    "deviation_count_30d",
+    "complaint_rate_7d",
+    "capa_overdue_ratio_30d",
+    "oos_count_7d",
+    "critical_ratio_7d",
+    "major_ratio_7d",
+    "unusual_event_count_7d",
+    "material_complaint_count_7d",
+    "quality_risk_open_7d",
 ]
 
 

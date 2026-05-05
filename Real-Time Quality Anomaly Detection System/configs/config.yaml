@@ -48,7 +48,7 @@ pipeline:
 anomaly_detection:
     contamination: 0.01        # ~1% anomaly rate matches our dataset
     rolling_window_days: 7
-    alert_threshold: -0.06
+    alert_threshold: 0.05
     deviation_spike_multiplier: 2.5   # alert if 2.5x 30-day average
 
 

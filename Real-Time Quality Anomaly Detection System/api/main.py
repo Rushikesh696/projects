@@ -26,7 +26,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler(LOG_PATH),
-    ]
+    ],
 )
 log = logging.getLogger(__name__)
 
@@ -41,7 +41,9 @@ async def lifespan(app: FastAPI):
     log.info("Loading model artifacts...")
     app.state.scaler = joblib.load(BASE_DIR / "models" / "scaler.pkl")
     app.state.iso_forest = joblib.load(BASE_DIR / "models" / "isolation_forest.pkl")
-    app.state.autoencoder = keras.models.load_model(BASE_DIR / "models" / "autoencoder.h5", compile=False)
+    app.state.autoencoder = keras.models.load_model(
+        BASE_DIR / "models" / "autoencoder.h5", compile=False
+    )
     app.state.config = load_config()
     log.info("Models loaded. API ready.")
     yield

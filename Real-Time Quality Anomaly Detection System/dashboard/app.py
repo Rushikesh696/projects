@@ -21,6 +21,7 @@ REFRESH_INTERVAL = 30  # seconds
 
 # ─── DB helpers ───────────────────────────────────────────────────────────────
 
+
 def get_conn():
     return psycopg2.connect(
         host=os.getenv("POSTGRES_HOST", "localhost"),
@@ -32,6 +33,7 @@ def get_conn():
 
 
 # ─── Data loaders (cached 30s) ────────────────────────────────────────────────
+
 
 @st.cache_data(ttl=REFRESH_INTERVAL)
 def load_kpis() -> dict:

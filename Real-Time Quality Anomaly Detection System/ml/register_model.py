@@ -25,7 +25,7 @@ logging.basicConfig(
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler(LOG_PATH),
-    ]
+    ],
 )
 log = logging.getLogger(__name__)
 
@@ -42,10 +42,12 @@ def register_isolation_forest(config: dict, client: MlflowClient) -> str:
     log.info("Isolation Forest loaded from disk.")
 
     with mlflow.start_run(run_name="register-isolation-forest"):
-        mlflow.log_params({
-            "model_type": "IsolationForest",
-            "contamination": config["anomaly_detection"]["contamination"],
-        })
+        mlflow.log_params(
+            {
+                "model_type": "IsolationForest",
+                "contamination": config["anomaly_detection"]["contamination"],
+            }
+        )
         mlflow.sklearn.log_model(
             sk_model=iso_forest,
             artifact_path="isolation_forest",
@@ -63,10 +65,12 @@ def register_autoencoder(config: dict, client: MlflowClient) -> str:
     log.info("Autoencoder loaded from disk.")
 
     with mlflow.start_run(run_name="register-autoencoder"):
-        mlflow.log_params({
-            "model_type": "Autoencoder",
-            "alert_threshold": config["anomaly_detection"]["alert_threshold"],
-        })
+        mlflow.log_params(
+            {
+                "model_type": "Autoencoder",
+                "alert_threshold": config["anomaly_detection"]["alert_threshold"],
+            }
+        )
         mlflow.tensorflow.log_model(
             model=autoencoder,
             artifact_path="autoencoder",

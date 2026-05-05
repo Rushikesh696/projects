@@ -8,6 +8,7 @@ Install before use:
     airflow users create --username admin --password admin \
         --firstname Admin --lastname Admin --role Admin --email admin@serum.com
 """
+
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -48,6 +49,7 @@ with DAG(
     def check_row_counts(**context):
         import psycopg2, os
         from dotenv import load_dotenv
+
         load_dotenv(PROJECT_ROOT / ".env")
 
         conn = psycopg2.connect(

@@ -2,18 +2,19 @@
 Unit tests for kafka/consumer.py — parse_message()
 No Kafka or PostgreSQL connection required.
 """
+
 import pytest
 from datetime import datetime
 
-
-
 # Import directly from the module
 import importlib, sys, types
+
 
 def get_parse_message():
     """Import parse_message without triggering Kafka/DB connections."""
     import importlib.util
     from pathlib import Path
+
     spec = importlib.util.spec_from_file_location(
         "consumer",
         Path(__file__).resolve().parent.parent.parent / "kafka" / "consumer.py",

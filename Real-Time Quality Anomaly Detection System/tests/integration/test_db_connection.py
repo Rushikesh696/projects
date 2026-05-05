@@ -2,6 +2,7 @@
 Integration tests — PostgreSQL connectivity and schema validation.
 Requires: docker-compose up -d postgres
 """
+
 import os
 import pytest
 import psycopg2
@@ -53,13 +54,16 @@ class TestSchemaExists:
 
 class TestTableExists:
 
-    @pytest.mark.parametrize("schema,table", [
-        ("source", "qa_events"),
-        ("bronze", "qa_events"),
-        ("silver", "qa_events_clean"),
-        ("gold", "qa_features"),
-        ("public", "alerts"),
-    ])
+    @pytest.mark.parametrize(
+        "schema,table",
+        [
+            ("source", "qa_events"),
+            ("bronze", "qa_events"),
+            ("silver", "qa_events_clean"),
+            ("gold", "qa_features"),
+            ("public", "alerts"),
+        ],
+    )
     def test_table_exists(self, db_conn, schema, table):
         with db_conn.cursor() as cur:
             cur.execute(

@@ -3,6 +3,7 @@ Integration tests — FastAPI endpoints.
 Requires: docker-compose up -d postgres  +  model artifacts in models/
 Uses FastAPI TestClient (no live server needed).
 """
+
 import os
 import pytest
 import numpy as np
@@ -58,13 +59,13 @@ def mock_models():
 @pytest.fixture(scope="module")
 def client(mock_models):
     scaler, iso_forest, autoencoder = mock_models
-    with patch("api.main.joblib") as mock_joblib, \
-         patch("api.main.keras") as mock_keras:
+    with patch("api.main.joblib") as mock_joblib, patch("api.main.keras") as mock_keras:
 
         mock_joblib.load.side_effect = [scaler, iso_forest]
         mock_keras.models.load_model.return_value = autoencoder
 
         from api.main import app
+
         with TestClient(app) as c:
             yield c
 

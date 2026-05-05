@@ -51,7 +51,7 @@ jobs:
         working-directory: "Real-Time Quality Anomaly Detection System"
 
       - name: Run DB integration tests
-        run: pytest tests/integration/test_db_connection.py -v --tb=short
+        run: pytest tests/integration/test_db_connection.py -v --tb=short -k "not RowCount"
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: "5433"

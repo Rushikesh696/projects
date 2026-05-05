@@ -2,6 +2,7 @@
 Unit tests for api/routes/auth.py — JWT token creation and verification.
 No database or Kafka required.
 """
+
 import os
 import pytest
 from datetime import datetime, timedelta
@@ -46,7 +47,11 @@ class TestVerifyToken:
     def test_valid_token_returns_username(self):
         token = create_access_token({"sub": "serum_qa"})
         # verify_token uses Depends() — call the underlying function directly
-        username = verify_token.__wrapped__(token) if hasattr(verify_token, "__wrapped__") else verify_token(token)
+        username = (
+            verify_token.__wrapped__(token)
+            if hasattr(verify_token, "__wrapped__")
+            else verify_token(token)
+        )
         assert username == "serum_qa"
 
     def test_invalid_token_raises_401(self):

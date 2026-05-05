@@ -64,8 +64,19 @@ def get_alerts(
                     (limit,),
                 )
             rows = cur.fetchall()
-            cols = ["id", "timestamp", "event_id", "event_type", "system", "product",
-                    "severity", "anomaly_score", "alert_type", "alert_reason", "status"]
+            cols = [
+                "id",
+                "timestamp",
+                "event_id",
+                "event_type",
+                "system",
+                "product",
+                "severity",
+                "anomaly_score",
+                "alert_type",
+                "alert_reason",
+                "status",
+            ]
             return [AlertRecord(**dict(zip(cols, row))) for row in rows]
     finally:
         conn.close()

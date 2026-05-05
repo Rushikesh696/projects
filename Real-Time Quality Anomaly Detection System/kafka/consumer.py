@@ -1,13 +1,13 @@
-import os       
+import os
 import sys
-import logging                                                                                                                                                                      
+import logging
 import json
-from pathlib import Path                                                                                                                                                            
-                
+from pathlib import Path
+
 from kafka import KafkaConsumer, KafkaProducer
 import psycopg2
 from psycopg2.extras import execute_values
-from dotenv import load_dotenv                                                                                                                                                      
+from dotenv import load_dotenv
 import yaml
 
 from datetime import datetime, timezone
@@ -18,33 +18,30 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 CONFIG_PATH = BASE_DIR / "configs" / "config.yaml"
-LOG_PATH = BASE_DIR / "logs" / "consumer.log"                                                                                                                                       
+LOG_PATH = BASE_DIR / "logs" / "consumer.log"
 LOG_PATH.parent.mkdir(exist_ok=True)
 
 logging.basicConfig(
-    level= logging.INFO,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-              logging.FileHandler(LOG_PATH)
-              ]
+    handlers=[logging.FileHandler(LOG_PATH)],
 )
 log = logging.getLogger(__name__)
-
 
 
 def load_config() -> dict:
     with open(CONFIG_PATH) as f:
         return yaml.safe_load(f)
-    
+
 
 def get_db_connection():
     return psycopg2.connect(
-          host=os.getenv("POSTGRES_HOST", "localhost"),
-          port=int(os.getenv("POSTGRES_PORT", 5433)),                                                                                                                                 
-          dbname=os.getenv("POSTGRES_DB"),
-          user=os.getenv("POSTGRES_USER"),                                                                                                                                            
-          password=os.getenv("POSTGRES_PASSWORD"),                                                                                                                                    
-      )
+        host=os.getenv("POSTGRES_HOST", "localhost"),
+        port=int(os.getenv("POSTGRES_PORT", 5433)),
+        dbname=os.getenv("POSTGRES_DB"),
+        user=os.getenv("POSTGRES_USER"),
+        password=os.getenv("POSTGRES_PASSWORD"),
+    )
 
 
 def get_dlq_producer() -> KafkaProducer:
@@ -54,7 +51,14 @@ def get_dlq_producer() -> KafkaProducer:
     )
 
 
-def publish_to_dlq(producer: KafkaProducer, raw_message, error: Exception, error_type: str, partition: int, offset: int) -> None:
+def publish_to_dlq(
+    producer: KafkaProducer,
+    raw_message,
+    error: Exception,
+    error_type: str,
+    partition: int,
+    offset: int,
+) -> None:
     dlq_payload = {
         "failed_at": datetime.utcnow().isoformat(),
         "error_type": error_type,
@@ -65,7 +69,9 @@ def publish_to_dlq(producer: KafkaProducer, raw_message, error: Exception, error
     }
     producer.send(DLQ_TOPIC, dlq_payload)
     producer.flush()
-    log.warning(f"Published failed message to DLQ — partition={partition}, offset={offset}, error={error_type}: {error}")
+    log.warning(
+        f"Published failed message to DLQ — partition={partition}, offset={offset}, error={error_type}: {error}"
+    )
 
 
 def get_consumer(config: dict) -> KafkaConsumer:
@@ -78,6 +84,7 @@ def get_consumer(config: dict) -> KafkaConsumer:
         value_deserializer=lambda m: json.loads(m.decode("utf-8")),
     )
 
+
 def parse_message(msg: dict) -> tuple[dict | None, Exception | None]:
     try:
         payload = msg.get("payload", msg)
@@ -88,15 +95,15 @@ def parse_message(msg: dict) -> tuple[dict | None, Exception | None]:
         for ts_col in ["timestamp", "closed_timestamp"]:
             val = after.get(ts_col)
             if val is not None:
-                after[ts_col] = datetime.fromtimestamp(
-                    val / 1_000_000, tz=timezone.utc
-                ).replace(tzinfo=None)
+                after[ts_col] = datetime.fromtimestamp(val / 1_000_000, tz=timezone.utc).replace(
+                    tzinfo=None
+                )
         return after, None
 
     except Exception as e:
         log.warning(f"Failed to parse message: {e}")
         return None, e
-    
+
 
 INSERT_SQL = """                                                                                                                                                                    
       INSERT INTO bronze.qa_events (                                                                                                                                                  
@@ -107,29 +114,30 @@ INSERT_SQL = """
       ) VALUES %s 
   """
 
-def insert_batch(batch: list[dict], conn) -> None:                                                                                                                                  
+
+def insert_batch(batch: list[dict], conn) -> None:
     rows = [
-        (                                                                                                                                                                           
+        (
             row.get("id"),
             row.get("timestamp"),
             row.get("event_type"),
             row.get("event_id"),
-            row.get("product"),                                                                                                                                                     
+            row.get("product"),
             row.get("system"),
-            row.get("root_cause"),                                                                                                                                                  
+            row.get("root_cause"),
             row.get("severity"),
             row.get("batch_id"),
             row.get("status"),
             row.get("resolution_days"),
-            row.get("closed_timestamp"),                                                                                                                                            
+            row.get("closed_timestamp"),
             row.get("is_anomaly"),
-            row.get("is_covid_period"),                                                                                                                                             
+            row.get("is_covid_period"),
             row.get("hour"),
             row.get("day_of_week"),
             row.get("month"),
-            row.get("year"),                                                                                                                                                        
+            row.get("year"),
             row.get("is_weekend"),
-        )                                                                                                                                                                           
+        )
         for row in batch
     ]
     with conn.cursor() as cur:
@@ -158,7 +166,9 @@ def main():
             row, parse_err = parse_message(message.value)
 
             if parse_err is not None:
-                publish_to_dlq(dlq_producer, message.value, parse_err, "ParseError", partition, offset)
+                publish_to_dlq(
+                    dlq_producer, message.value, parse_err, "ParseError", partition, offset
+                )
                 continue
 
             if row is None:
@@ -170,7 +180,9 @@ def main():
             except Exception as insert_err:
                 log.error(f"Insert failed for offset={offset}: {insert_err}")
                 conn.rollback()
-                publish_to_dlq(dlq_producer, message.value, insert_err, "InsertError", partition, offset)
+                publish_to_dlq(
+                    dlq_producer, message.value, insert_err, "InsertError", partition, offset
+                )
 
     except KeyboardInterrupt:
         log.info("Shutting down consumer...")
@@ -181,8 +193,6 @@ def main():
         conn.close()
         log.info("Consumer closed.")
 
+
 if __name__ == "__main__":
     main()
-
-
-

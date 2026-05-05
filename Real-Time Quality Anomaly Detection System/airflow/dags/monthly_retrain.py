@@ -10,6 +10,7 @@ Runs on the 1st of each month:
 Install before use:
     pip install apache-airflow evidently papermill
 """
+
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -29,12 +30,18 @@ DEFAULT_ARGS = {
     "email_on_failure": False,
 }
 
-DRIFT_THRESHOLD = 0.20   # retrain if >20% of features have drifted
+DRIFT_THRESHOLD = 0.20  # retrain if >20% of features have drifted
 FEATURE_COLS = [
-    "deviation_count_7d", "deviation_count_30d",
-    "complaint_rate_7d", "capa_overdue_ratio_30d", "oos_count_7d",
-    "critical_ratio_7d", "major_ratio_7d",
-    "unusual_event_count_7d", "material_complaint_count_7d", "quality_risk_open_7d",
+    "deviation_count_7d",
+    "deviation_count_30d",
+    "complaint_rate_7d",
+    "capa_overdue_ratio_30d",
+    "oos_count_7d",
+    "critical_ratio_7d",
+    "major_ratio_7d",
+    "unusual_event_count_7d",
+    "material_complaint_count_7d",
+    "quality_risk_open_7d",
 ]
 
 
@@ -101,7 +108,7 @@ def branch_on_drift(**context):
 with DAG(
     dag_id="serum_monthly_retrain",
     description="Monthly drift-triggered model retraining",
-    schedule_interval="0 2 1 * *",   # 02:00 on the 1st of each month
+    schedule_interval="0 2 1 * *",  # 02:00 on the 1st of each month
     start_date=datetime(2025, 1, 1),
     catchup=False,
     default_args=DEFAULT_ARGS,

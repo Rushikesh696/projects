@@ -22,6 +22,7 @@ Target: 520,000+ rows
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+from pathlib import Path
 import random
 
 np.random.seed(42)
@@ -528,11 +529,12 @@ def main():
     df["year"]        = pd.to_datetime(df["timestamp"]).dt.year
     df["is_weekend"]  = df["day_of_week"].isin([5, 6]).astype(int)
 
-    out_path = "/home/rushikesh/Music/serum_qa_realtime_raw.csv"
+    out_path = Path(__file__).resolve().parent / "data" / "bronze" / "serum_qa_realtime_raw.csv"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out_path, index=False)
 
     print(f"\n{'='*55}")
-    print(f"DONE — saved to: {out_path}")
+    print(f"DONE — saved to: {out_path.resolve()}")
     print(f"{'='*55}")
     print(f"Total records     : {len(df):,}")
     print(f"Date range        : {START_DATE.date()} → {END_DATE.date()}")

@@ -91,7 +91,7 @@ def engineer_features(df):
                         F.sum(F.when(F.col("severity") == "Critical", 1).otherwise(0)).over(w7) / F.count("*").over(w7))
     
     df = df.withColumn("major_ratio_7d",
-                       F.sum(F.when(F.col("severity") == "Major", 1).otherwise(0)).over(w7))
+                       F.sum(F.when(F.col("severity") == "Major", 1).otherwise(0)).over(w7) / F.count("*").over(w7))
     
     df = df.withColumn("unusual_event_count_7d",
                         F.sum(F.when(F.col("event_type").isin("critical_alarm", "media_fill"), 1).otherwise(0)).over(w7))

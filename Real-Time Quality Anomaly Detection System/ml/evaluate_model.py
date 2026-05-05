@@ -118,7 +118,7 @@ def evaluate_autoencoder(autoencoder, X_scaled, y, threshold=0.7):
     X_reconstructed = autoencoder.predict(X_scaled)
     recon_errors = np.mean(np.power(X_scaled - X_reconstructed, 2), axis=1)
 
-    preds_binary = (recon_errors >= threshold).astype(int)
+    preds_binary = (recon_errors > threshold).astype(int)
 
     metrics = {
         "ae_precision": precision_score(y, preds_binary, zero_division=0),

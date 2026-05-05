@@ -65,7 +65,7 @@ jobs:
           pip install pytest pytest-cov
           pip install psycopg2-binary python-dotenv pyyaml \
                       scikit-learn numpy pandas \
-                      fastapi python-jose[cryptography] \
+                      fastapi python-jose[cryptography] python-multipart \
                       xgboost imbalanced-learn
 
       - name: Run unit tests

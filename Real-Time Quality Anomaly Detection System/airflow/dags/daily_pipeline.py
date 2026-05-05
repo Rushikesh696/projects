@@ -12,9 +12,10 @@ Install before use:
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+
+from airflow import DAG
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 PYTHON = str(PROJECT_ROOT / "venv" / "bin" / "python")
@@ -47,7 +48,9 @@ with DAG(
     )
 
     def check_row_counts(**context):
-        import psycopg2, os
+        import os
+
+        import psycopg2
         from dotenv import load_dotenv
 
         load_dotenv(PROJECT_ROOT / ".env")

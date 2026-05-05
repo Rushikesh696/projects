@@ -1,0 +1,8 @@
+[tool.isort]
+profile = "black"
+line_length = 100
+skip = ["venv", "notebooks", "__pycache__"]
+
+[tool.black]
+line-length = 100
+exclude = "venv|notebooks|\\.ipynb"

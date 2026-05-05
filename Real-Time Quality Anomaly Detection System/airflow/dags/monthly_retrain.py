@@ -14,10 +14,11 @@ Install before use:
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from airflow import DAG
 from airflow.operators.bash import BashOperator
-from airflow.operators.python import BranchPythonOperator, PythonOperator
 from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import BranchPythonOperator, PythonOperator
+
+from airflow import DAG
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 PYTHON = str(PROJECT_ROOT / "venv" / "bin" / "python")
@@ -52,11 +53,12 @@ def run_drift_check(**context):
     Pushes drift_detected=True/False to XCom.
     """
     import os
+
     import pandas as pd
     import psycopg2
     from dotenv import load_dotenv
-    from evidently.report import Report
     from evidently.metric_preset import DataDriftPreset
+    from evidently.report import Report
 
     load_dotenv(PROJECT_ROOT / ".env")
 

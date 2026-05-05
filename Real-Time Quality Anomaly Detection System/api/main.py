@@ -1,6 +1,6 @@
+import logging
 import os
 import sys
-import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tensorflow import keras
 
-from api.routes import auth, predict, alerts
+from api.routes import alerts, auth, predict
 
 load_dotenv()
 

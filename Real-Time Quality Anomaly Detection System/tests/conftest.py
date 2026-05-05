@@ -3,10 +3,11 @@ Shared pytest fixtures for unit and integration tests.
 """
 
 import os
-import pytest
+from unittest.mock import MagicMock
+
 import numpy as np
 import pandas as pd
-from unittest.mock import MagicMock
+import pytest
 from sklearn.preprocessing import StandardScaler
 
 # ── Fixtures: feature data ────────────────────────────────────────────────────

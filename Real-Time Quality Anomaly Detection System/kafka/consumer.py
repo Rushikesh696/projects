@@ -1,16 +1,16 @@
+import json
+import logging
 import os
 import sys
-import logging
-import json
+from datetime import datetime, timezone
 from pathlib import Path
 
-from kafka import KafkaConsumer, KafkaProducer
 import psycopg2
-from psycopg2.extras import execute_values
-from dotenv import load_dotenv
 import yaml
+from dotenv import load_dotenv
+from psycopg2.extras import execute_values
 
-from datetime import datetime, timezone
+from kafka import KafkaConsumer, KafkaProducer
 
 DLQ_TOPIC = "serum.source.qa_events.dlq"
 

@@ -10,7 +10,7 @@ import pytest
 
 
 def evaluate_isolation_forest(iso_forest, X_scaled, y):
-    from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+    from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
 
     raw_scores = iso_forest.decision_function(X_scaled)
     anomaly_scores = -raw_scores
@@ -26,7 +26,7 @@ def evaluate_isolation_forest(iso_forest, X_scaled, y):
 
 
 def evaluate_autoencoder(autoencoder, X_scaled, y, threshold=0.7):
-    from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
+    from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
 
     X_reconstructed = autoencoder.predict(X_scaled)
     recon_errors = np.mean(np.power(X_scaled - X_reconstructed, 2), axis=1)

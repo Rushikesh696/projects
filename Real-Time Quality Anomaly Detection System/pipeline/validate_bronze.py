@@ -7,15 +7,15 @@ Run:     python pipeline/validate_bronze.py
 """
 
 import json
+import logging
 import os
 import sys
-import logging
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
+import great_expectations as ge
 import pandas as pd
 import psycopg2
-import great_expectations as ge
 from dotenv import load_dotenv
 
 load_dotenv()

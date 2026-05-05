@@ -5,10 +5,11 @@ Uses FastAPI TestClient (no live server needed).
 """
 
 import os
-import pytest
-import numpy as np
-from unittest.mock import MagicMock, patch
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import numpy as np
+import pytest
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 

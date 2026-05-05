@@ -4,10 +4,11 @@ Requires: docker-compose up -d postgres
 """
 
 import os
-import pytest
-import psycopg2
-from dotenv import load_dotenv
 from pathlib import Path
+
+import psycopg2
+import pytest
+from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 

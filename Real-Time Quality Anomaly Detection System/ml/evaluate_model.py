@@ -1,26 +1,26 @@
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
 
 import joblib
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import mlflow
 import mlflow.sklearn
+import numpy as np
+import pandas as pd
+import yaml
 from dotenv import load_dotenv
+from pyspark.sql import SparkSession
 from sklearn.metrics import (
-    precision_score,
+    ConfusionMatrixDisplay,
+    confusion_matrix,
     f1_score,
+    precision_score,
     recall_score,
     roc_auc_score,
-    confusion_matrix,
     roc_curve,
-    ConfusionMatrixDisplay,
 )
-from pyspark.sql import SparkSession
-import yaml
 from tensorflow import keras
 
 load_dotenv()

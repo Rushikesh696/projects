@@ -139,7 +139,7 @@ Key config values: `anomaly_detection.contamination = 0.01`, `rolling_window_day
 
 ### Orchestration & DevOps
 - **Step 8 — Airflow DAGs**: `airflow/dags/daily_pipeline.py` (daily bronze→validate→silver→validate→gold), `airflow/dags/monthly_retrain.py` (Evidently AI drift check → conditional retrain → evaluate → register) ✅
-- **Step 9 — CI/CD**: `.github/workflows/` directory does not yet exist — needs `ci.yml` (lint + unit tests + config validation) and `cd.yml` (integration tests + API smoke test + model artifact check) ❌
+- **Step 9 — CI/CD**: `ci.yml` (lint + unit tests + config validation) and `cd.yml` (integration tests + API smoke test + model artifact check). Both passing on GitHub Actions ✅
 - **DVC**: `dvc.yaml` (4 pipeline stages) + `params.yaml` (tracked parameters). Run `git init && dvc init && dvc add data/bronze/serum_qa_realtime_raw.csv` to activate ⚠️ partial
 
 ### Tests
@@ -182,7 +182,7 @@ Key config values: `anomaly_detection.contamination = 0.01`, `rolling_window_day
 - **Shadow mode deployment** — run Staging + Production models in parallel before promoting
 - **SHAP values per prediction** — store in alerts table for pharma audit trail
 - **Structured JSON logging** (`structlog`) — queryable structured log fields
-- **CI/CD GitHub Actions** — `ci.yml` + `cd.yml` workflows
+- **CI/CD GitHub Actions** — `ci.yml` + `cd.yml` workflows ✅
 
 ### Tier 3 — Partially done
 - API versioning (`/v1/predict`) ✅, `/health` + `/ready` ✅, pre-commit hooks (black, isort, flake8) — not set up

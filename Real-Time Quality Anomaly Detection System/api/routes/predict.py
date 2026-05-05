@@ -92,7 +92,9 @@ def predict(req: PredictRequest, request: Request, _: str = Depends(verify_token
     pred = iso_forest.predict(X_scaled)[0]
     is_anomaly = 1 if pred == -1 else 0
 
-    alert_triggered = bool(is_anomaly and anomaly_score >= threshold)
+    # Use anomaly_score directly — IF.predict() uses training offset which
+    # doesn't generalise to test distribution; score-based threshold does.
+    alert_triggered = bool(anomaly_score >= threshold)
 
     if alert_triggered:
         try:

@@ -1,14 +1,12 @@
 import logging
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import StringType
 
 load_dotenv()
 
@@ -137,7 +135,6 @@ def write_to_silver(df, spark: SparkSession) -> None:
 
 
 def main():
-    config = load_config()
     spark = get_spark()
 
     try:

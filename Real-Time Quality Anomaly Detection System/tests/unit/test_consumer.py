@@ -4,12 +4,9 @@ No Kafka or PostgreSQL connection required.
 """
 
 # Import directly from the module
-import importlib
 import sys
 import types
 from datetime import datetime
-
-import pytest
 
 
 def get_parse_message():

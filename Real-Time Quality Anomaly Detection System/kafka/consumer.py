@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -70,7 +69,8 @@ def publish_to_dlq(
     producer.send(DLQ_TOPIC, dlq_payload)
     producer.flush()
     log.warning(
-        f"Published failed message to DLQ — partition={partition}, offset={offset}, error={error_type}: {error}"
+        f"Published failed message to DLQ — "
+        f"partition={partition}, offset={offset}, error={error_type}: {error}"
     )
 
 
@@ -105,13 +105,13 @@ def parse_message(msg: dict) -> tuple[dict | None, Exception | None]:
         return None, e
 
 
-INSERT_SQL = """                                                                                                                                                                    
-      INSERT INTO bronze.qa_events (                                                                                                                                                  
-          source_id, timestamp, event_type, event_id, product, system,                                                                                                                
-          root_cause, severity, batch_id, status, resolution_days,                                                                                                                    
+INSERT_SQL = """
+      INSERT INTO bronze.qa_events (
+          source_id, timestamp, event_type, event_id, product, system,
+          root_cause, severity, batch_id, status, resolution_days,
           closed_timestamp, is_anomaly, is_covid_period, hour,
-          day_of_week, month, year, is_weekend                                                                                                                                        
-      ) VALUES %s 
+          day_of_week, month, year, is_weekend
+      ) VALUES %s
   """
 
 

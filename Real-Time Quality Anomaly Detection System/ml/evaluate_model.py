@@ -19,7 +19,6 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     roc_auc_score,
-    roc_curve,
 )
 from tensorflow import keras
 
@@ -104,7 +103,8 @@ def prepare_features(df: pd.DataFrame, scaler) -> tuple:
     y = df["is_anomaly"].values
     X_scaled = scaler.transform(X)
     log.info(
-        f"Features prepared. Shape: {X_scaled.shape}, Anomalies: {y.sum():,} ({y.mean() * 100:.2f}%)"
+        f"Features prepared. Shape: {X_scaled.shape}, "
+        f"Anomalies: {y.sum():,} ({y.mean() * 100:.2f}%)"
     )
     return X_scaled, y
 
@@ -125,7 +125,8 @@ def evaluate_isolation_forest(iso_forest, X_scaled, y):
     }
 
     log.info(
-        f"IF - Precision: {metrics['iso_precision']:.4f}, Recall: {metrics['iso_recall']:.4f}, F1: {metrics['iso_f1']:.4f}, ROC-AUC: {metrics['iso_roc_auc']:.4f}"
+        f"IF  Precision={metrics['iso_precision']:.4f}  Recall={metrics['iso_recall']:.4f}"
+        f"  F1={metrics['iso_f1']:.4f}  ROC-AUC={metrics['iso_roc_auc']:.4f}"
     )
 
     return metrics, preds_binary, anomaly_scores
@@ -147,7 +148,8 @@ def evaluate_autoencoder(autoencoder, X_scaled, y, threshold=0.7):
     }
 
     log.info(
-        f"AE - Precision: {metrics['ae_precision']:.4f}, Recall: {metrics['ae_recall']:.4f}, F1: {metrics['ae_f1']:.4f}, ROC-AUC: {metrics['ae_roc_auc']:.4f}"
+        f"AE  Precision={metrics['ae_precision']:.4f}  Recall={metrics['ae_recall']:.4f}"
+        f"  F1={metrics['ae_f1']:.4f}  ROC-AUC={metrics['ae_roc_auc']:.4f}"
     )
 
     return metrics, preds_binary, recon_errors

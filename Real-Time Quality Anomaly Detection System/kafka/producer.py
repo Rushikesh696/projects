@@ -7,7 +7,6 @@ from pathlib import Path
 import yaml
 from dotenv import load_dotenv
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
 from pyspark.sql.types import (
     FloatType,
     IntegerType,
@@ -119,9 +118,7 @@ def main():
     try:
         df = load_csv(spark)
         write_to_postgres(df, config)
-        log.info(
-            "Done. Debezium should now be streaming CDC events to kafka topic: serum.source.qa_events"
-        )
+        log.info("Done. Debezium streaming CDC events to " "Kafka topic: serum.source.qa_events")
 
     finally:
         spark.stop()

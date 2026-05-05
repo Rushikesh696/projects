@@ -191,7 +191,6 @@ def write_to_gold(df) -> None:
 
 
 def main():
-    config = load_config()
     spark = get_spark()
 
     try:

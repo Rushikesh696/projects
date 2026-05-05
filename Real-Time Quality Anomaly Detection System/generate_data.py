@@ -591,13 +591,14 @@ def main():
     print(f"Total records     : {len(df):,}")
     print(f"Date range        : {START_DATE.date()} → {END_DATE.date()}")
     print(f"Columns           : {list(df.columns)}")
-    print(f"\nEvent type distribution:")
+    print("\nEvent type distribution:")
     print(df["event_type"].value_counts().to_string())
     print(f"\nAnomalous events  : {df['is_anomaly'].sum():,} ({df['is_anomaly'].mean()*100:.2f}%)")
     print(
-        f"COVID period rows : {df['is_covid_period'].sum():,} ({df['is_covid_period'].mean()*100:.1f}%)"
+        f"COVID period rows : {df['is_covid_period'].sum():,} "
+        f"({df['is_covid_period'].mean()*100:.1f}%)"
     )
-    print(f"\nMissing values:")
+    print("\nMissing values:")
     missing = df.isnull().sum()
     print(missing[missing > 0].to_string())
     print(f"\nAnomaly windows   : {len(ANOMALY_WINDOWS)}")

@@ -4,8 +4,7 @@ No database or Kafka required.
 """
 
 import os
-from datetime import datetime, timedelta
-from unittest.mock import patch
+from datetime import datetime
 
 import pytest
 
@@ -13,10 +12,10 @@ os.environ.setdefault("API_SECRET_KEY", "test-secret-key-for-unit-tests")
 os.environ.setdefault("API_ALGORITHM", "HS256")
 os.environ.setdefault("API_TOKEN_EXPIRE_MINUTES", "30")
 
-from fastapi import HTTPException
-from jose import jwt
+from fastapi import HTTPException  # noqa: E402
+from jose import jwt  # noqa: E402
 
-from api.routes.auth import ALGORITHM, SECRET_KEY, create_access_token, verify_token
+from api.routes.auth import ALGORITHM, SECRET_KEY, create_access_token, verify_token  # noqa: E402
 
 
 class TestCreateAccessToken:

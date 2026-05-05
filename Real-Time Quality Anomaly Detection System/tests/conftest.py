@@ -2,7 +2,6 @@
 Shared pytest fixtures for unit and integration tests.
 """
 
-import os
 from unittest.mock import MagicMock
 
 import numpy as np
